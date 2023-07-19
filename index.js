@@ -96,7 +96,7 @@ function clearOldMessages(statusChannel, nbr) {
 				return;
 			});
 		})
-		.catch(function (error) {
+		.catch((e) => {
 			return;
 		});
 }
@@ -108,7 +108,7 @@ function getLastMessage(statusChannel) {
 			messages = messages.filter();
 			return messages.first();
 		})
-		.catch(function (error) {
+		.catch((e) => {
 			return;
 		});
 }
