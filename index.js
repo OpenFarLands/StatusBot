@@ -35,7 +35,7 @@ client.once(Events.ClientReady, async (c) => {
 	});
     setInterval(async () => {
         await statusMessage.edit({ embeds: [await generateStatusEmbed()] });
-    }, 60000);
+    }, 300000);
 });
 
 async function createStatusMessage(statusChannel) {
