@@ -158,6 +158,9 @@ async function generateStatusEmbed(update_graph = false) {
 					myChart.setBackgroundColor("white");
 					link = await myChart.getShortUrl();
 				}
+                client.user.setActivity({
+                    name: `✅ ${state.players.length} / ${state.maxplayers}`
+                });
 				embed = new EmbedBuilder()
 					.setTitle("Server online!")
 					.setColor("#00CC00")
@@ -179,6 +182,9 @@ async function generateStatusEmbed(update_graph = false) {
 					.setTimestamp();
 			})
 			.catch(async (e) => {
+                client.user.setActivity({
+                    name: `🆘 1000-7`
+                });
 				console.info(e);
 				embed = new EmbedBuilder()
 					.setTitle("Server offline!")
@@ -192,6 +198,9 @@ async function generateStatusEmbed(update_graph = false) {
 					.setTimestamp();
 			});
 	} catch (e) {
+        client.user.setActivity({
+            name: `🆘 1000-7`
+        });
 		console.info(e);
 		embed = new EmbedBuilder()
 			.setTitle("Server offline!")
