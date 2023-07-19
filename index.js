@@ -130,7 +130,7 @@ async function generateStatusEmbed(update_graph = false) {
 			.then(async (state) => {
 				if (update_graph) {
 					let now = new Date();
-					let mins = now.setMinutes().toString();
+					let mins = now.getMinutes().toString();
 					let hours = now.getHours().toString();
 					if (online.length >= 15 || time.length >= 15) {
 						online.shift();
