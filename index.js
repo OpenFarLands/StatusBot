@@ -123,7 +123,7 @@ async function generateStatusEmbed(update_graph = false) {
 			type: "minecraftbe",
 			host: HOST,
 			port: PORT,
-			maxAttempts: 1,
+			maxAttempts: 5,
 			socketTimeout: 1000,
 			debug: false,
 		})
