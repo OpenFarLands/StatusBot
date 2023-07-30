@@ -40,7 +40,7 @@ client.once(Events.ClientReady, async (c) => {
 	});
 	setInterval(async () => {
 		let now = new Date();
-		if (now.getHours() - time[time.length - 1].split(":")[0] > 0) {
+		if (now.getHours() != time[time.length - 1].split(":")[0]) {
 			await statusMessage.edit({
 				embeds: [await generateStatusEmbed(true)],
 			});
@@ -138,9 +138,6 @@ async function generateStatusEmbed(update_graph = false) {
 					}
 					if (mins.length === 1) {
 						mins = "0" + mins;
-					}
-					if (hours.length === 1) {
-						hours = "0" + hours;
 					}
 					time.push(`${hours}:${mins}`);
 					online.push(state.players.length);
