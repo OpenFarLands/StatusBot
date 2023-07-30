@@ -40,13 +40,16 @@ client.once(Events.ClientReady, async (c) => {
 	});
 	setInterval(async () => {
 		let now = new Date();
-		if (now.getHours() != time[time.length - 1].split(":")[0]) {
-			await statusMessage.edit({
-				embeds: [await generateStatusEmbed(true)],
-			});
-		} else {
-			await statusMessage.edit({ embeds: [await generateStatusEmbed()] });
-		}
+        if(time.length > 0){
+            if (now.getHours() != time[time.length - 1].split(":")[0]) {
+                await statusMessage.edit({
+                    embeds: [await generateStatusEmbed(true)],
+                });
+            } else {
+                await statusMessage.edit({ embeds: [await generateStatusEmbed()] });
+            }
+        }
+
 	}, 300000);
 });
 
