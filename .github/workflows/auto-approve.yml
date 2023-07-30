@@ -10,3 +10,6 @@ jobs:
     if: github.actor == 'mikhaillav'
     steps:
       - uses: hmarr/auto-approve-action@v3
+        with:
+            review-message: "Auto approved automated PR"
+            github-token: ${{ secrets.GITHUB_TOKEN }}
