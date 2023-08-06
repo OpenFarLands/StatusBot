@@ -32,7 +32,7 @@ client.once(Events.ClientReady, async () => {
 		try {
 			await i.update({ embeds: [await generateStatusEmbed()] });
 		} catch (error) {
-			console.log('Произошла ошибка при обновлении сообщения:\n', error.message)
+			console.log('Произошла ошибка при обновлении сообщения:\n', error.message);
 		}
 	});
 
@@ -48,8 +48,8 @@ client.once(Events.ClientReady, async () => {
 				});
 			}
 		} catch (error) {
-			console.log('Произошла ошибка при обновлении сообщения:\n', error.message)
-		}
+			console.log('Произошла ошибка при обновлении сообщения:\n', error.message);
+		};
 	}, 300000);
 });
 
@@ -68,7 +68,8 @@ async function createStatusMessage(statusChannel) {
 	.addComponents(
 		new ButtonBuilder()
 		.setCustomId("button")
-		.setLabel("🔄️").setStyle(ButtonStyle.Primary)
+		.setLabel("🔄️")
+		.setStyle(ButtonStyle.Primary)
     );
 
     return statusChannel.send({ embeds: [embed], components: [button] });
@@ -91,19 +92,16 @@ async function clearOldMessages(statusChannel, nbr) {
 
 async function getLastMessage(statusChannel) {
 	try {
-		return statusChannel.messages
-		.fetch({ limit: 20 })
-		.then((messages) => {
-			messages = messages.filter();
-			return messages.first();
-		})
-		.catch((e) => {
-			return;
-		});
-	} catch (error) {
-		console.log('Произошла ошибка при получении последнего сообщения:\n', error.message);
+	  const messages = await statusChannel.messages.fetch({ limit: 20 });
+	  const filteredMessages = messages.filter((message) => {
+		return true;
+	  });
+	  return filteredMessages.first();
+	} catch (e) {
+	  console.error('Произошла ошибка при получении последнего сообщения:\n', e.message);
+	  return null;
 	}
-}
+}  
 
 async function generateStatusEmbed(update_graph = false) {
 	let embed;
