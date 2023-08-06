@@ -30,7 +30,9 @@ client.on('ready', async () => {
 
 	collector.on("collect", async (i) => {
 		try {
-			await i.update({ embeds: [await generateStatusEmbed(false)] });
+			const hasImageUrl = !statusMessage?.embeds[0]?.image?.url;
+			console.log(hasImageUrl)
+			await i.update({ embeds: [await generateStatusEmbed(hasImageUrl)] });
 		} catch (error) {
 			console.log('Произошла ошибка при обновлении сообщения:\n', error.message);
 		}
