@@ -11,7 +11,7 @@ let link;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-client.once(Events.ClientReady, async () => {
+client.on('ready', async () => {
     console.log(`Готово! Вошли как ${client.user.tag}`);
     const statusChannel = client.channels.cache.get(STATUS_CHANNEL);
 
@@ -30,7 +30,7 @@ client.once(Events.ClientReady, async () => {
 
 	collector.on("collect", async (i) => {
 		try {
-			await i.update({ embeds: [await generateStatusEmbed()] });
+			await i.update({ embeds: [await generateStatusEmbed(false)] });
 		} catch (error) {
 			console.log('Произошла ошибка при обновлении сообщения:\n', error.message);
 		}
@@ -57,13 +57,13 @@ async function createStatusMessage(statusChannel) {
     await clearOldMessages(statusChannel, 1);
 
     const statusMessage = await getLastMessage(statusChannel);
-    if (statusMessage) {
+    if (statusMessage && statusMessage.embeds[0]?.image?.url) {
         return statusMessage;
     }
 
     await clearOldMessages(statusChannel, 0);
-    const embed = await generateStatusEmbed(true);
 
+    const embed = await generateStatusEmbed(true);
     const button = new ActionRowBuilder()
 	.addComponents(
 		new ButtonBuilder()
@@ -98,15 +98,24 @@ async function getLastMessage(statusChannel) {
 	  });
 	  return filteredMessages.first();
 	} catch (e) {
-	  console.error('Произошла ошибка при получении последнего сообщения:\n', e.message);
+	  console.error('Произошла ошибка при получении последнего сообщения (оно отсутствует):\n', e.message);
 	  return null;
 	}
 }  
 
-async function generateStatusEmbed(update_graph = false) {
+async function generateStatusEmbed(update_graph) {
+
+	const statusChannel = client.channels.cache.get(STATUS_CHANNEL);
+	const statusMessage = await getLastMessage(statusChannel);
 	let embed;
 	tic = !tic;
 	let ticEmoji = tic ? "[⚪]" : "[⚫]";
+
+	if (statusMessage && statusMessage.embeds[0]?.image?.url && !link) {
+		const oldLink = statusMessage.embeds[0]?.image?.url;
+		console.log(`Ссылка на график отсутствует, беру из эмбеда: ${ oldLink }`)
+		link = oldLink;
+    }
 
 	try {
 		const state = await Gamedig.query({
@@ -144,7 +153,15 @@ async function generateStatusEmbed(update_graph = false) {
 				myChart.setWidth(800);
 				myChart.setHeight(400);
 				myChart.setBackgroundColor("white");
-				link = await myChart.getShortUrl();
+				const shortLink = await myChart.getShortUrl();
+				if(shortLink){
+					link = shortLink;
+					console.log(`Сгенерирована шорт ссылка на график: ${ shortLink }`)
+				} else {
+					const fullLink = await myChart.getUrl();
+					link = fullLink;
+					console.log(`Сгенерирована полная ссылка на график: ${ fullLink }`)
+				}
 			}
 			
 			client.user.setPresence({
