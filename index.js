@@ -1,4 +1,11 @@
-const { Client, Events, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonStyle, ButtonBuilder } = require("discord.js");
+const {
+	Client,
+	GatewayIntentBits,
+	EmbedBuilder,
+	ActionRowBuilder,
+	ButtonStyle,
+	ButtonBuilder
+} = require("discord.js");
 require("dotenv").config();
 const Gamedig = require("gamedig");
 const QuickChart = require("quickchart-js");
@@ -11,30 +18,30 @@ let link;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-client.on('ready', async () => {
-    console.log(`Готово! Вошли как ${client.user.tag}`);
-    const statusChannel = client.channels.cache.get(STATUS_CHANNEL);
+client.on("ready", async () => {
+	console.log(`Ready! Logged in as ${c.user.tag}`);
+	const statusChannel = client.channels.cache.get(STATUS_CHANNEL);
 
-    if (!statusChannel) {
-        console.log("Ошибка: неверный идентификатор канала!");
-        return;
-    }
+	if (!statusChannel) {
+		console.log("error: id of channel invalid!");
+		return;
+	}
 
-    const statusMessage = await createStatusMessage(statusChannel);
-    if (!statusMessage) {
-        console.log("Ошибка: невозможно отправить сообщение со статусом!");
-        return;
-    }
+	const statusMessage = await createStatusMessage(statusChannel);
+	if (!statusMessage) {
+		console.log("error: unable to send status message!");
+		return;
+	}
 
 	const collector = statusMessage.channel.createMessageComponentCollector();
-
 	collector.on("collect", async (i) => {
 		try {
 			const hasImageUrl = !statusMessage?.embeds[0]?.image?.url;
-			console.log(hasImageUrl)
-			await i.update({ embeds: [await generateStatusEmbed(hasImageUrl)] });
+			await i.update({
+				embeds: [await generateStatusEmbed(hasImageUrl)]
+			});
 		} catch (error) {
-			console.log('Произошла ошибка при обновлении сообщения:\n', error.message);
+			console.error("error while updating status message:\n",error.message);
 		}
 	});
 
@@ -43,70 +50,73 @@ client.on('ready', async () => {
 			if (time.length > 0) {
 				const now = new Date();
 				const currentHour = now.getHours();
-				const lastHour = parseInt(time[time.length - 1].split(":")[0], 10);
-	
+				const lastHour = parseInt(
+					time[time.length - 1].split(":")[0],
+					10
+				);
+
 				await statusMessage.edit({
-					embeds: [await generateStatusEmbed(currentHour !== lastHour)],
+					embeds: [
+						await generateStatusEmbed(currentHour !== lastHour)
+					]
 				});
 			}
 		} catch (error) {
-			console.log('Произошла ошибка при обновлении сообщения:\n', error.message);
-		};
+            console.error("error while updating status message:\n",error.message);
+		}
 	}, 300000);
 });
 
 async function createStatusMessage(statusChannel) {
-    await clearOldMessages(statusChannel, 1);
+	await clearOldMessages(statusChannel, 1);
 
-    const statusMessage = await getLastMessage(statusChannel);
-    if (statusMessage && statusMessage.embeds[0]?.image?.url) {
-        return statusMessage;
-    }
+	const statusMessage = await getLastMessage(statusChannel);
+	if (statusMessage && statusMessage.embeds[0]?.image?.url) {
+		return statusMessage;
+	}
 
-    await clearOldMessages(statusChannel, 0);
+	await clearOldMessages(statusChannel, 0);
 
-    const embed = await generateStatusEmbed(true);
-    const button = new ActionRowBuilder()
-	.addComponents(
+	const embed = await generateStatusEmbed(true);
+	const button = new ActionRowBuilder().addComponents(
 		new ButtonBuilder()
-		.setCustomId("button")
-		.setLabel("🔄️")
-		.setStyle(ButtonStyle.Primary)
-    );
+			.setCustomId("button")
+			.setLabel("🔄️")
+			.setStyle(ButtonStyle.Primary)
+	);
 
-    return statusChannel.send({ embeds: [embed], components: [button] });
+	return statusChannel.send({ embeds: [embed], components: [button] });
 }
 
 async function clearOldMessages(statusChannel, nbr) {
-    try {
-        const messages = await statusChannel.messages.fetch({ limit: 99 });
-        let i = 0;
-        for (const message of messages.values()) {
-            if (i >= nbr) {
-                await message.delete().catch(() => {});
-            }
-            i += 1;
-        }
-    } catch (error) {
-        console.log('Произошла ошибка при удалении старых сообщений:\n', error.message);
-    }
+	try {
+		const messages = await statusChannel.messages.fetch({ limit: 99 });
+		let i = 0;
+		for (const message of messages.values()) {
+			if (i >= nbr) {
+				await message.delete().catch(() => {});
+			}
+			i += 1;
+		}
+	} catch (error) {
+        console.error("error while deleting old status messages:\n", error.message);
+	}
 }
 
 async function getLastMessage(statusChannel) {
 	try {
-	  const messages = await statusChannel.messages.fetch({ limit: 20 });
-	  const filteredMessages = messages.filter((message) => {
-		return true;
-	  });
-	  return filteredMessages.first();
+		const messages = await statusChannel.messages.fetch({ limit: 20 });
+		const filteredMessages = messages.filter((message) => {
+			return true;
+		});
+		return filteredMessages.first();
 	} catch (e) {
-	  console.error('Произошла ошибка при получении последнего сообщения (оно отсутствует):\n', e.message);
-	  return null;
+        console.error("error while getting last status message (does not exist):\n", error.message);
+		return null;
 	}
-}  
+}
 
 async function generateStatusEmbed(update_graph) {
-
 	const statusChannel = client.channels.cache.get(STATUS_CHANNEL);
 	const statusMessage = await getLastMessage(statusChannel);
 	let embed;
@@ -115,19 +125,19 @@ async function generateStatusEmbed(update_graph) {
 
 	if (statusMessage && statusMessage.embeds[0]?.image?.url && !link) {
 		const oldLink = statusMessage.embeds[0]?.image?.url;
-		console.log(`Ссылка на график отсутствует, беру из эмбеда: ${ oldLink }`)
+		console.log(`no graph link, the old one will be used: ${oldLink}`);
 		link = oldLink;
-    }
+	}
 
 	try {
-		const state = await Gamedig.query({
+		const state = Gamedig.query({
 			type: "minecraftbe",
 			host: HOST,
 			port: PORT,
 			maxAttempts: 5,
 			socketTimeout: 1000,
-			debug: false,
-		})
+			debug: false
+		});
 		try {
 			if (update_graph) {
 				let now = new Date();
@@ -149,76 +159,83 @@ async function generateStatusEmbed(update_graph) {
 					type: "line",
 					data: {
 						labels: time,
-						datasets: [{ label: "online", data: online }],
-					},
+						datasets: [{ label: "online", data: online }]
+					}
 				});
 				myChart.setWidth(800);
 				myChart.setHeight(400);
 				myChart.setBackgroundColor("white");
-				const shortLink = await myChart.getShortUrl();
-				if(shortLink){
-					link = shortLink;
-					console.log(`Сгенерирована шорт ссылка на график: ${ shortLink }`)
-				} else {
-					const fullLink = await myChart.getUrl();
-					link = fullLink;
-					console.log(`Сгенерирована полная ссылка на график: ${ fullLink }`)
-				}
+				link = await myChart.getShortUrl();
 			}
-			
+
 			client.user.setPresence({
-				activities: [{ name: `✅ ${state.players.length} / ${state.maxplayers}`, type: 'PLAYING' }],
-				status: 'online',
+				activities: [
+					{
+						name: `✅ ${state.players.length} / ${state.maxplayers}`,
+						type: "PLAYING"
+					}
+				],
+				status: "online"
 			});
 
 			embed = new EmbedBuilder()
-			.setTitle("Server online!")
-			.setColor("#00CC00")
-			.setImage(link)
-			.addFields(
-				{ name: "Address", value: `${'`' + DISPLAY_HOST + '`'}` },
-				{
-					name: "Port",
-					value: "`" + DISPLAY_PORT + "`",
-					inline: true,
-				},
-				{
-					name: "Online:",
-					value: `${'`' + state.players.length + " / " + state.maxplayers + '`'}` ,
-					inline: true,
-				}
-			)
-			.setFooter({ text: `${ticEmoji} Cool kids never sleep` })
-			.setTimestamp();
+				.setTitle("Server online!")
+				.setColor("#00CC00")
+				.setImage(link)
+				.addFields(
+					{ name: "Address", value: `${"`" + DISPLAY_HOST + "`"}` },
+					{
+						name: "Port",
+						value: "`" + DISPLAY_PORT + "`",
+						inline: true
+					},
+					{
+						name: "Online:",
+						value: `${
+							"`" +
+							state.players.length +
+							" / " +
+							state.maxplayers +
+							"`"
+						}`,
+						inline: true
+					}
+				)
+				.setFooter({ text: `${ticEmoji} Cool kids never sleep` })
+				.setTimestamp();
 		} catch (e) {
 			client.user.setPresence({
-				activities: [{ name: `🆘 1000-7`, type: 'WATCHING' }],
-				status: 'dnd',
+				activities: [{ name: `🆘 1000-7`, type: "WATCHING" }],
+				status: "dnd"
 			});
 
-			console.info('Произошла ошибка при создании сообщения:\n', e.message);
+            console.error("error while creating status message:\n", error.message);
 
 			embed = new EmbedBuilder()
-			.setTitle("Server offline!")
-			.setColor("#ff0000")
-			.setDescription("Looks like admin have fucked up. Our team probably already working on this issue. If you don't think so, please contact the administration.")
-			.setFooter({
-				text: ticEmoji + " Even cool kids need to sleep",
-			})
-			.setTimestamp();
+				.setTitle("Server offline!")
+				.setColor("#ff0000")
+				.setDescription(
+					"Looks like admin have fucked up. Our team probably already working on this issue. If you don't think so, please contact the administration."
+				)
+				.setFooter({
+					text: ticEmoji + " Even cool kids need to sleep"
+				})
+				.setTimestamp();
 		}
 	} catch (e) {
 		client.user.setPresence({
-			activities: [{ name: `🆘 1000-7`, type: 'WATCHING' }],
-			status: 'dnd',
+			activities: [{ name: `🆘 1000-7`, type: "WATCHING" }],
+			status: "dnd"
 		});
-		console.info('Произошла ошибка при создании сообщения 2:\n', e.message);
+		console.error("error while creating status message:\n", error.message);
 		embed = new EmbedBuilder()
-		.setTitle("Server offline!")
-		.setColor("#ff0000")
-		.setDescription("Looks like admin have fucked up. Our team probably already working on this issue. If you don't think so, please contact the administration.")
-		.setFooter({ text: ticEmoji + " Even cool kids need to sleep" })
-		.setTimestamp();
+			.setTitle("Server offline!")
+			.setColor("#ff0000")
+			.setDescription(
+				"Looks like admin have fucked up. Our team probably already working on this issue. If you don't think so, please contact the administration."
+			)
+			.setFooter({ text: ticEmoji + " Even cool kids need to sleep" })
+			.setTimestamp();
 	}
 	return embed;
 }
