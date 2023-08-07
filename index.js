@@ -136,9 +136,7 @@ async function generateStatusEmbed(update_graph) {
 		});
 		try {
 			if (update_graph) {
-				let now = new Date();
-				let mins = now.getMinutes().toString();
-				let hours = now.getHours().toString();
+				let timeStr = new Date().toString().split(" ")[4].substring(":", 5);
 				if (online.length >= 15 || time.length >= 15) {
 					online.shift();
 					time.shift();
@@ -146,7 +144,7 @@ async function generateStatusEmbed(update_graph) {
 				if (mins.length === 1) {
 					mins = "0" + mins;
 				}
-				time.push(`${hours}:${mins}`);
+				time.push(`${timeStr}`);
 				online.push(state.players.length);
 
 				const myChart = new QuickChart();
