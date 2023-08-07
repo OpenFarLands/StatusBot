@@ -141,9 +141,6 @@ async function generateStatusEmbed(update_graph) {
 					online.shift();
 					time.shift();
 				}
-				if (mins.length === 1) {
-					mins = "0" + mins;
-				}
 				time.push(`${timeStr}`);
 				online.push(state.players.length);
 
