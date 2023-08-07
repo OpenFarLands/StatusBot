@@ -61,7 +61,7 @@ client.on("ready", async (c) => {
 
 				await statusMessage.edit({
 					embeds: [
-						await generateStatusEmbed(true)
+						await generateStatusEmbed(currentHour != lastHour)
 					]
 				});
 			}
