@@ -167,17 +167,10 @@ async function generateStatusEmbed(update_graph) {
 				myChart.setBackgroundColor("white");
 				link = await myChart.getShortUrl();
 			}
-
-			client.user.setPresence({
-				activities: [
-					{
-						name: `✅ ${state.players.length} / ${state.maxplayers}`,
-						type: "PLAYING"
-					}
-				],
-				status: "online"
-			});
-
+            client.user.setActivity({
+                name: `✅ ${state.players.length} / ${state.maxplayers}`
+            });
+            
 			embed = new EmbedBuilder()
 				.setTitle("Server online!")
 				.setColor("#00CC00")
@@ -204,10 +197,9 @@ async function generateStatusEmbed(update_graph) {
 				.setFooter({ text: `${ticEmoji} Cool kids never sleep` })
 				.setTimestamp();
 		} catch (e) {
-			client.user.setPresence({
-				activities: [{ name: `🆘 1000-7`, type: "WATCHING" }],
-				status: "dnd"
-			});
+            client.user.setActivity({
+                name: `🆘 1000-7`
+            });
 
             console.error("error while creating status message:\n", e);
 
@@ -223,10 +215,9 @@ async function generateStatusEmbed(update_graph) {
 				.setTimestamp();
 		}
 	} catch (e) {
-		client.user.setPresence({
-			activities: [{ name: `🆘 1000-7`, type: "WATCHING" }],
-			status: "dnd"
-		});
+        client.user.setActivity({
+            name: `🆘 1000-7`
+        });
 		console.error("error while creating status message:\n", e);
 		embed = new EmbedBuilder()
 			.setTitle("Server offline!")
