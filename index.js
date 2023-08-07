@@ -18,7 +18,7 @@ let link;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-client.on("ready", async () => {
+client.on("ready", async (c) => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
 	const statusChannel = client.channels.cache.get(STATUS_CHANNEL);
 
@@ -130,7 +130,7 @@ async function generateStatusEmbed(update_graph) {
 	}
 
 	try {
-		const state = Gamedig.query({
+		const state = await Gamedig.query({
 			type: "minecraftbe",
 			host: HOST,
 			port: PORT,
@@ -209,7 +209,7 @@ async function generateStatusEmbed(update_graph) {
 				status: "dnd"
 			});
 
-            console.error("error while creating status message:\n", error.message);
+            console.error("error while creating status message:\n", e);
 
 			embed = new EmbedBuilder()
 				.setTitle("Server offline!")
@@ -227,7 +227,7 @@ async function generateStatusEmbed(update_graph) {
 			activities: [{ name: `🆘 1000-7`, type: "WATCHING" }],
 			status: "dnd"
 		});
-		console.error("error while creating status message:\n", error.message);
+		console.error("error while creating status message:\n", e);
 		embed = new EmbedBuilder()
 			.setTitle("Server offline!")
 			.setColor("#ff0000")
