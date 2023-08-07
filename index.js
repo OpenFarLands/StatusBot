@@ -36,12 +36,16 @@ client.on("ready", async (c) => {
 	const collector = statusMessage.channel.createMessageComponentCollector();
 	collector.on("collect", async (i) => {
 		try {
-			const hasImageUrl = !statusMessage?.embeds[0]?.image?.url;
-			await i.update({
-				embeds: [await generateStatusEmbed(hasImageUrl)]
+            await i.deferUpdate();
+            let shouldUpdateGraph = false;
+            if(i.message.embeds[0]?.image?.url == undefined){
+                shouldUpdateGraph = true;
+            }
+            await i.editReply({
+				embeds: [await generateStatusEmbed(shouldUpdateGraph)]
 			});
 		} catch (error) {
-			console.error("error while updating status message:\n",error.message);
+			console.error("error while updating status message:\n", error);
 		}
 	});
 
@@ -57,12 +61,12 @@ client.on("ready", async (c) => {
 
 				await statusMessage.edit({
 					embeds: [
-						await generateStatusEmbed(currentHour != lastHour)
+						await generateStatusEmbed(true)
 					]
 				});
 			}
 		} catch (error) {
-            console.error("error while updating status message:\n",error.message);
+            console.error("error while updating status message:\n", error);
 		}
 	}, 300000);
 });
@@ -117,17 +121,9 @@ async function getLastMessage(statusChannel) {
 }
 
 async function generateStatusEmbed(update_graph) {
-	const statusChannel = client.channels.cache.get(STATUS_CHANNEL);
-	const statusMessage = await getLastMessage(statusChannel);
 	let embed;
 	tic = !tic;
 	let ticEmoji = tic ? "[⚪]" : "[⚫]";
-
-	if (statusMessage && statusMessage.embeds[0]?.image?.url && !link) {
-		const oldLink = statusMessage.embeds[0]?.image?.url;
-		console.log(`no graph link, the old one will be used: ${oldLink}`);
-		link = oldLink;
-	}
 
 	try {
 		const state = await Gamedig.query({
